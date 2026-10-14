@@ -1,9 +1,55 @@
 export type Vault = {
-  version: '0.7.2';
+  version: '0.9.5';
   name: 'vault';
   instructions: [
     {
       name: 'initialize';
+      accounts: [
+        {
+          name: 'vault';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'payer';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'tokenVault';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'tokenMint';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'lpMint';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'rent';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'tokenProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [];
+    },
+    {
+      name: 'initializeIdleVault';
       accounts: [
         {
           name: 'vault';
@@ -361,37 +407,6 @@ export type Vault = {
       ];
     },
     {
-      name: 'collectDust';
-      accounts: [
-        {
-          name: 'vault';
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: 'tokenVault';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'tokenAdmin';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'admin';
-          isMut: false;
-          isSigner: true;
-        },
-        {
-          name: 'tokenProgram';
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [];
-    },
-    {
       name: 'addStrategy';
       accounts: [
         {
@@ -564,56 +579,6 @@ export type Vault = {
         },
       ];
       args: [];
-    },
-    {
-      name: 'withdraw2';
-      accounts: [
-        {
-          name: 'vault';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'tokenVault';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'lpMint';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'userToken';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'userLp';
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: 'user';
-          isMut: false;
-          isSigner: true;
-        },
-        {
-          name: 'tokenProgram';
-          isMut: false;
-          isSigner: false;
-        },
-      ];
-      args: [
-        {
-          name: 'unmintAmount';
-          type: 'u64';
-        },
-        {
-          name: 'minOutAmount';
-          type: 'u64';
-        },
-      ];
     },
     {
       name: 'deposit';
@@ -790,6 +755,22 @@ export type Vault = {
         },
       ];
     },
+    {
+      name: 'migrateVault';
+      accounts: [
+        {
+          name: 'vault';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'lpMint';
+          isMut: false;
+          isSigner: false;
+        },
+      ];
+      args: [];
+    },
   ];
   accounts: [
     {
@@ -830,7 +811,21 @@ export type Vault = {
           {
             name: 'strategies';
             type: {
-              array: ['publicKey', 30];
+              array: ['publicKey', 29];
+            };
+          },
+          {
+            name: 'version';
+            type: 'u8';
+          },
+          {
+            name: 'totalLpSupply';
+            type: 'u64';
+          },
+          {
+            name: 'padding0';
+            type: {
+              array: ['u8', 23];
             };
           },
           {
@@ -991,6 +986,12 @@ export type Vault = {
           {
             name: 'Marginfi';
           },
+          {
+            name: 'Kamino';
+          },
+          {
+            name: 'JupLend';
+          },
         ];
       };
     },
@@ -1113,6 +1114,26 @@ export type Vault = {
       ];
     },
     {
+      name: 'VaultMigrated';
+      fields: [
+        {
+          name: 'vault';
+          type: 'publicKey';
+          index: false;
+        },
+        {
+          name: 'version';
+          type: 'u8';
+          index: false;
+        },
+        {
+          name: 'totalLpSupply';
+          type: 'u64';
+          index: false;
+        },
+      ];
+    },
+    {
       name: 'TotalAmount';
       fields: [
         {
@@ -1206,7 +1227,7 @@ export type Vault = {
     },
     {
       code: 6016;
-      name: 'PayAmountIsExeeced';
+      name: 'PayAmountIsExceeded';
       msg: 'Pay amount is exceeded';
     },
     {
@@ -1222,17 +1243,88 @@ export type Vault = {
     {
       code: 6019;
       name: 'HaveMoneyInLending';
-      msg: 'Cannot remove strategy becase we have some in lending';
+      msg: 'Cannot remove strategy because we have some in lending';
+    },
+    {
+      code: 6020;
+      name: 'InvalidPrecisionLoss';
+      msg: 'Invalid precision loss';
+    },
+    {
+      code: 6021;
+      name: 'UndeterminedError';
+      msg: 'Undetermined error';
+    },
+    {
+      code: 6022;
+      name: 'InvalidLpOwner';
+      msg: 'User is not the owner of the LP token account';
+    },
+    {
+      code: 6023;
+      name: 'InvalidLpSupplyAccounting';
+      msg: 'Vault LP supply accounting is invalid';
+    },
+    {
+      code: 6024;
+      name: 'VaultAlreadyMigrated';
+      msg: 'Vault is already migrated';
     },
   ];
 };
 
 export const IDL: Vault = {
-  version: '0.7.2',
+  version: '0.9.5',
   name: 'vault',
   instructions: [
     {
       name: 'initialize',
+      accounts: [
+        {
+          name: 'vault',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'payer',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'tokenVault',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenMint',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'lpMint',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'rent',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'tokenProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: 'initializeIdleVault',
       accounts: [
         {
           name: 'vault',
@@ -1590,37 +1682,6 @@ export const IDL: Vault = {
       ],
     },
     {
-      name: 'collectDust',
-      accounts: [
-        {
-          name: 'vault',
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: 'tokenVault',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'tokenAdmin',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'admin',
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [],
-    },
-    {
       name: 'addStrategy',
       accounts: [
         {
@@ -1793,56 +1854,6 @@ export const IDL: Vault = {
         },
       ],
       args: [],
-    },
-    {
-      name: 'withdraw2',
-      accounts: [
-        {
-          name: 'vault',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'tokenVault',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'lpMint',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'userToken',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'userLp',
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: 'user',
-          isMut: false,
-          isSigner: true,
-        },
-        {
-          name: 'tokenProgram',
-          isMut: false,
-          isSigner: false,
-        },
-      ],
-      args: [
-        {
-          name: 'unmintAmount',
-          type: 'u64',
-        },
-        {
-          name: 'minOutAmount',
-          type: 'u64',
-        },
-      ],
     },
     {
       name: 'deposit',
@@ -2019,6 +2030,22 @@ export const IDL: Vault = {
         },
       ],
     },
+    {
+      name: 'migrateVault',
+      accounts: [
+        {
+          name: 'vault',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'lpMint',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
   ],
   accounts: [
     {
@@ -2059,7 +2086,21 @@ export const IDL: Vault = {
           {
             name: 'strategies',
             type: {
-              array: ['publicKey', 30],
+              array: ['publicKey', 29],
+            },
+          },
+          {
+            name: 'version',
+            type: 'u8',
+          },
+          {
+            name: 'totalLpSupply',
+            type: 'u64',
+          },
+          {
+            name: 'padding0',
+            type: {
+              array: ['u8', 23],
             },
           },
           {
@@ -2220,6 +2261,12 @@ export const IDL: Vault = {
           {
             name: 'Marginfi',
           },
+          {
+            name: 'Kamino',
+          },
+          {
+            name: 'JupLend',
+          },
         ],
       },
     },
@@ -2342,6 +2389,26 @@ export const IDL: Vault = {
       ],
     },
     {
+      name: 'VaultMigrated',
+      fields: [
+        {
+          name: 'vault',
+          type: 'publicKey',
+          index: false,
+        },
+        {
+          name: 'version',
+          type: 'u8',
+          index: false,
+        },
+        {
+          name: 'totalLpSupply',
+          type: 'u64',
+          index: false,
+        },
+      ],
+    },
+    {
       name: 'TotalAmount',
       fields: [
         {
@@ -2435,7 +2502,7 @@ export const IDL: Vault = {
     },
     {
       code: 6016,
-      name: 'PayAmountIsExeeced',
+      name: 'PayAmountIsExceeded',
       msg: 'Pay amount is exceeded',
     },
     {
@@ -2451,7 +2518,32 @@ export const IDL: Vault = {
     {
       code: 6019,
       name: 'HaveMoneyInLending',
-      msg: 'Cannot remove strategy becase we have some in lending',
+      msg: 'Cannot remove strategy because we have some in lending',
+    },
+    {
+      code: 6020,
+      name: 'InvalidPrecisionLoss',
+      msg: 'Invalid precision loss',
+    },
+    {
+      code: 6021,
+      name: 'UndeterminedError',
+      msg: 'Undetermined error',
+    },
+    {
+      code: 6022,
+      name: 'InvalidLpOwner',
+      msg: 'User is not the owner of the LP token account',
+    },
+    {
+      code: 6023,
+      name: 'InvalidLpSupplyAccounting',
+      msg: 'Vault LP supply accounting is invalid',
+    },
+    {
+      code: 6024,
+      name: 'VaultAlreadyMigrated',
+      msg: 'Vault is already migrated',
     },
   ],
 };

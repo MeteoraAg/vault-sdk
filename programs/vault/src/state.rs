@@ -4,7 +4,8 @@ use anchor_lang::prelude::*;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 
-pub const MAX_STRATEGY: usize = 30;
+pub const MAX_STRATEGY: usize = 29;
+pub const VAULT_VERSION_TRACKED_LP_SUPPLY: u8 = 1;
 pub const MAX_BUMPS: usize = 10;
 pub const LOCKED_PROFIT_DEGRADATION_DENOMINATOR: u128 = 1_000_000_000_000;
 
@@ -22,6 +23,9 @@ pub struct Vault {
 
     pub lp_mint: Pubkey,
     pub strategies: [Pubkey; MAX_STRATEGY],
+    pub version: u8,
+    pub total_lp_supply: u64,
+    pub _padding0: [u8; 23],
 
     pub base: Pubkey,
     pub admin: Pubkey,
@@ -69,6 +73,17 @@ impl LockedProfitTracker {
 }
 
 impl Vault {
+    pub fn get_lp_supply(&self, lp_mint_supply: u64) -> Option<u64> {
+        if self.version == VAULT_VERSION_TRACKED_LP_SUPPLY {
+            if self.total_lp_supply < lp_mint_supply {
+                return None;
+            }
+            Some(self.total_lp_supply)
+        } else {
+            Some(lp_mint_supply)
+        }
+    }
+
     pub fn get_unlocked_amount(&self, current_time: u64) -> Option<u64> {
         self.total_amount.checked_sub(
             self.locked_profit_tracker
