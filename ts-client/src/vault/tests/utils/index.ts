@@ -1,6 +1,10 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 
 const LAMPORTS_PER_SOL = 1e9;
+
+// The devnet faucet rate-limits shared CI runners, so airdrop-funded suites only run locally.
+export const describeDevnet = process.env.CI ? describe.skip : describe;
+
 export const airDropSol = async (connection: Connection, publicKey: PublicKey, amount = 1 * LAMPORTS_PER_SOL) => {
   try {
     const airdropSignature = await connection.requestAirdrop(publicKey, amount);

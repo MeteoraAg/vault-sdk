@@ -2,7 +2,7 @@ import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { Wallet, AnchorProvider, BN } from '@coral-xyz/anchor';
 
 import VaultImpl from '..';
-import { airDropSol } from './utils';
+import { airDropSol, describeDevnet } from './utils';
 import { getVaultPdas } from '../utils';
 import { PROGRAM_ID, USDC_MINT, USDT_MINT } from '../constants';
 import { NATIVE_MINT } from '@solana/spl-token';
@@ -61,7 +61,7 @@ describe('Get Mainnet vault state', () => {
   });
 });
 
-describe('Interact with Vault in devnet', () => {
+describeDevnet('Interact with Vault in devnet', () => {
   const provider = new AnchorProvider(devnetConnection, mockWallet, {
     commitment: 'confirmed',
   });

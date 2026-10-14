@@ -2,7 +2,7 @@ import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { Wallet, AnchorProvider, BN } from '@coral-xyz/anchor';
 
 import VaultImpl from '..';
-import { airDropSol } from './utils';
+import { airDropSol, describeDevnet } from './utils';
 import { NATIVE_MINT } from '@solana/spl-token';
 import fs from "fs";
 import os from 'os'
@@ -15,7 +15,7 @@ const devnetConnection = new Connection('https://api.devnet.solana.com/', { comm
 
 // TODO: Remove this fake partner ID
 const TEMPORARY_PARTNER_PUBLIC_KEY = new PublicKey('7236FoaWTXJyzbfFPZcrzg3tBpPhGiTgXsGWvjwrYfiF');
-describe('Interact with Vault in devnet', () => {
+describeDevnet('Interact with Vault in devnet', () => {
   const provider = new AnchorProvider(devnetConnection, mockWallet, {
     commitment: 'confirmed',
   });
