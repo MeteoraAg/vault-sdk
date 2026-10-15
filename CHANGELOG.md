@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Sync IDL with vault program 0.9.5: `Vault` has 29 strategies followed by `version`, `totalLpSupply` and `padding0`, new `VaultMigrated` event and errors up to `VaultAlreadyMigrated` (6024)
 - `getVaultSupply` refetches the vault and returns `totalLpSupply` for version 1 vaults
+- Version 1 vaults price shares with `totalLpSupply`, not the LP mint supply. Reading `lpMint.supply` directly gives wrong share and amount calculations, use `getVaultLpSupply` / `getVaultSupply` in TS or `Vault::get_lp_supply` in Rust
+- `deposit` no longer refetches the vault, it only uses the vault's LP mint and token mint
 - `refreshVaultState` also refreshes `tokenLpMint`
 - Rust `Vault` state uses the 0.9.5 layout and adds `get_lp_supply`, `VaultError` matches the program
 

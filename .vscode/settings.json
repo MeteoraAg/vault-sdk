@@ -1,4 +1,0 @@
-{
-  "typescript.tsdk": "ts-client/node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
-}

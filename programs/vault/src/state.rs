@@ -1,5 +1,6 @@
 use crate::context::VaultBumps;
 use crate::strategy::base::StrategyType;
+use crate::VaultError;
 use anchor_lang::prelude::*;
 use std::convert::TryFrom;
 use std::fmt::Debug;
@@ -73,14 +74,15 @@ impl LockedProfitTracker {
 }
 
 impl Vault {
-    pub fn get_lp_supply(&self, lp_mint_supply: u64) -> Option<u64> {
+    pub fn get_lp_supply(&self, lp_mint_supply: u64) -> Result<u64> {
         if self.version == VAULT_VERSION_TRACKED_LP_SUPPLY {
-            if self.total_lp_supply < lp_mint_supply {
-                return None;
-            }
-            Some(self.total_lp_supply)
+            require!(
+                self.total_lp_supply >= lp_mint_supply,
+                VaultError::InvalidLpSupplyAccounting
+            );
+            Ok(self.total_lp_supply)
         } else {
-            Some(lp_mint_supply)
+            Ok(lp_mint_supply)
         }
     }
 

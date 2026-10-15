@@ -527,9 +527,6 @@ export default class VaultImpl implements VaultImplementation {
   }
 
   public async deposit(owner: PublicKey, baseTokenAmount: BN): Promise<Transaction> {
-    // Refresh vault state
-    await this.refreshVaultState();
-
     let preInstructions: TransactionInstruction[] = [];
 
     let partnerAddress: PublicKey | undefined;
