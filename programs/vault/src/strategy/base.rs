@@ -29,6 +29,7 @@ pub enum StrategyType {
     Frakt,
     Marginfi,
     Kamino,
+    JupLend,
 }
 
 impl std::fmt::Display for StrategyType {

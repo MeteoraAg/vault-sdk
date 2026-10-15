@@ -49,7 +49,6 @@ const vaultImpl = await VaultImpl.create(connection, NATIVE_MINT);
 
 ```ts
 // To refetch the vault's latest supply
-// Alternatively, use `vaultImpl.lpSupply`
 const lpSupply = await vaultImpl.getVaultSupply();
 
 // Rewards are not instantly redeemable, and are subject to a lock.

@@ -8,15 +8,15 @@ export type StrategyType =
   | 'solendWithoutLm'
   | 'solendWithLm'
   | 'francium'
-  | 'apricotWithoutLM'
+  | 'apricotWithoutLm'
   | 'mango'
   | 'tulip'
   | 'vault'
   | 'drift'
   | 'frakt'
-  | 'cypher'
-  | 'psylend'
-  | 'marginfi';
+  | 'marginfi'
+  | 'kamino'
+  | 'jupLend';
 
 export type StrategyState = {
   reserve: PublicKey;

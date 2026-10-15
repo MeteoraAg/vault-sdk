@@ -3,7 +3,7 @@ description: "Setup Solana"
 runs:
   using: "composite"
   steps:
-    - uses: actions/cache@v2
+    - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       name: Cache Solana Tool Suite
       id: cache-solana
       with:
@@ -15,9 +15,24 @@ runs:
     #   id: check-solana-avail
     #   run: solana --version
     #   shell: bash
-    - run: sh -c "$(curl -sSfL https://release.solana.com/v${{ env.SOLANA_CLI_VERSION }}/install)"
+    # release.solana.com no longer completes TLS. Install the same 1.16.13
+    # release from the GitHub archive the old installer downloaded.
+    - run: |
+        set -euo pipefail
+        install_root="${HOME}/.local/share/solana/install"
+        if [ -x "${install_root}/active_release/bin/solana" ]; then
+          "${install_root}/active_release/bin/solana" --version
+          exit 0
+        fi
+        version="${SOLANA_CLI_VERSION}"
+        tmp="$(mktemp -d)"
+        url="https://github.com/solana-labs/solana/releases/download/v${version}/solana-release-x86_64-unknown-linux-gnu.tar.bz2"
+        curl -sSfL "${url}" -o "${tmp}/solana-release.tar.bz2"
+        mkdir -p "${install_root}/releases/${version}"
+        tar -xjf "${tmp}/solana-release.tar.bz2" -C "${install_root}/releases/${version}"
+        ln -sfn "${install_root}/releases/${version}/solana-release" "${install_root}/active_release"
+        "${install_root}/active_release/bin/solana" --version
       shell: bash
-      # if: steps.check-solana-avail.outputs.status == 'failure'
     - run: echo "$HOME/.local/share/solana/install/active_release/bin/" >> $GITHUB_PATH
       shell: bash
     - run: solana-keygen new --no-bip39-passphrase --force

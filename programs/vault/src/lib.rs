@@ -162,7 +162,31 @@ pub enum VaultError {
     StrategyIsNotSupported,
 
     #[msg("Pay amount is exceeded")]
-    PayAmountIsExeeced,
+    PayAmountIsExceeded,
+
+    #[msg("Fee vault is not set")]
+    FeeVaultIsNotSet,
+
+    #[msg("deposit amount in lending is not matched")]
+    LendingAssertionViolation,
+
+    #[msg("Cannot remove strategy because we have some in lending")]
+    HaveMoneyInLending,
+
+    #[msg("Invalid precision loss")]
+    InvalidPrecisionLoss,
+
+    #[msg("Undetermined error")]
+    UndeterminedError,
+
+    #[msg("User is not the owner of the LP token account")]
+    InvalidLpOwner,
+
+    #[msg("Vault LP supply accounting is invalid")]
+    InvalidLpSupplyAccounting,
+
+    #[msg("Vault is already migrated")]
+    VaultAlreadyMigrated,
 }
 
 #[event]

@@ -8,7 +8,7 @@ import {
   SYSVAR_RENT_PUBKEY,
   SystemProgram,
 } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID, NATIVE_MINT, getMint, Mint, unpackMint } from '@solana/spl-token';
+import { TOKEN_PROGRAM_ID, NATIVE_MINT, Mint, unpackMint } from '@solana/spl-token';
 
 import {
   AffiliateInfo,
@@ -30,6 +30,7 @@ import {
   wrapSOLInstruction,
 } from './utils';
 import { AFFILIATE_PROGRAM_ID, PROGRAM_ID, VAULT_STRATEGY_ADDRESS } from './constants';
+import { getVaultLpSupply } from './helper';
 import { StrategyState } from './strategy';
 import { IDL, Vault as VaultIdl } from './idl';
 import { IDL as AffiliateIDL, AffiliateVault as AffiliateVaultIdl } from './affiliate-idl';
@@ -435,11 +436,9 @@ export default class VaultImpl implements VaultImplementation {
   }
 
   /** To refetch the latest lpSupply */
-  /** Use vaultImpl.lpSupply to use cached result */
   public async getVaultSupply(): Promise<BN> {
-    const vaultLpMint = await getMint(this.connection, this.vaultState.lpMint);
-    this.tokenLpMint = vaultLpMint;
-    return new BN(vaultLpMint.supply.toString());
+    await this.refreshVaultState();
+    return getVaultLpSupply(this.vaultState, new BN(this.tokenLpMint.supply.toString()));
   }
 
   public async getWithdrawableAmount(): Promise<BN> {
@@ -449,8 +448,9 @@ export default class VaultImpl implements VaultImplementation {
   }
 
   public async refreshVaultState() {
-    const { vaultState, vaultMint } = await getVaultStateByPda(this.vaultPda, this.program);
+    const { vaultState, vaultLpMint, vaultMint } = await getVaultStateByPda(this.vaultPda, this.program);
     this.vaultState = vaultState;
+    this.tokenLpMint = vaultLpMint;
     this.tokenMint = vaultMint;
   }
 
@@ -527,9 +527,6 @@ export default class VaultImpl implements VaultImplementation {
   }
 
   public async deposit(owner: PublicKey, baseTokenAmount: BN): Promise<Transaction> {
-    // Refresh vault state
-    await this.refreshVaultState();
-
     let preInstructions: TransactionInstruction[] = [];
 
     let partnerAddress: PublicKey | undefined;
@@ -654,8 +651,6 @@ export default class VaultImpl implements VaultImplementation {
   }
 
   public async withdraw(owner: PublicKey, baseTokenAmount: BN): Promise<Transaction> {
-    // Refresh vault state
-    await this.refreshVaultState();
     const lpSupply = await this.getVaultSupply();
 
     let preInstructions: TransactionInstruction[] = [];
