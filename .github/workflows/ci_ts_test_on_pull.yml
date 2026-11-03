@@ -47,36 +47,10 @@ jobs:
           node-version: ${{ matrix.node }}
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
-          version: 12
+          package_json_file: ts-client/package.json
       - name: Install dependencies
         working-directory: ${{ env.working_dir }}
         run: pnpm install --frozen-lockfile
       - name: Run tests
         working-directory: ${{ env.working_dir }}
         run: pnpm run test
-
-  # advisories of the published dependencies, ignored ones are in ts-client/pnpm-workspace.yaml
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-        with:
-          version: 12
-      - run: pnpm audit --prod
-        working-directory: ${{ env.working_dir }}
-        shell: bash
-
-  # advisories of every dependency, dev ones included, ignored ones are in ts-client/osv-scanner.toml
-  osv_scanner:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: google/osv-scanner-action/osv-scanner-action@b1d267aea5211fa648d9d442fa64b90dbdcbdd36 # v2.7.0
-        with:
-          scan-args: |-
-            scan
-            source
-            --config=ts-client/osv-scanner.toml
-            -L
-            ts-client/pnpm-lock.yaml

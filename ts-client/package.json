@@ -48,5 +48,6 @@
   "bugs": {
     "url": "https://github.com/MeteoraAg/vault-sdk/issues"
   },
-  "homepage": "https://github.com/MeteoraAg/vault-sdk#readme"
+  "homepage": "https://github.com/MeteoraAg/vault-sdk#readme",
+  "packageManager": "pnpm@12.16.1"
 }
