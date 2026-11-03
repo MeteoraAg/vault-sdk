@@ -15,36 +15,44 @@ on:
 env:
   SOLANA_CLI_VERSION: 1.16.13
   ANCHOR_CLI_VERSION: 0.28.0
+  TOOLCHAIN: 1.70.0
 
 jobs:
   changed_files_rust:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
-      program: ${{steps.changed-files-specific.outputs.any_changed}}
+      program: ${{steps.changed-files-specific.outputs.program}}
     steps:
-      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
       - name: Get specific changed files
         id: changed-files-specific
-        uses: tj-actions/changed-files@a2f1692a6f703b7a14e155ae404e6bb15538b763 # v18.6
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
-          files: |
-            rust-client
-            programs
+          filters: |
+            program:
+              - "rust-client/**"
+              - "programs/**"
+              - "Cargo.toml"
+              - "Cargo.lock"
 
   rust-test:
     needs: changed_files_rust
     runs-on: ubuntu-latest
     if: needs.changed_files_rust.outputs.program == 'true'
     steps:
-      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: ./.github/actions/setup-dep
       - uses: ./.github/actions/setup-solana
       - uses: ./.github/actions/setup-anchor-cli
       # Install rust + toolchain
-      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master (2026-10-16)
         with:
+          toolchain: ${{ env.TOOLCHAIN }}
           components: clippy, rustfmt
       # Cargo build cache
       - name: Cargo Cache
@@ -67,3 +75,24 @@ jobs:
         run: anchor build
       - name: Cargo build
         run: cargo build --package rust-client
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master (2026-10-16)
+        with:
+          toolchain: ${{ env.TOOLCHAIN }}
+          components: clippy
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - run: cargo clippy --locked -- -D warnings
+        shell: bash
+
+  # advisories, licenses, bans and sources, see deny.toml
+  cargo_deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check

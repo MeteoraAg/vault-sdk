@@ -133,12 +133,6 @@ impl Vault {
     }
 }
 
-impl Default for StrategyType {
-    fn default() -> Self {
-        StrategyType::PortFinanceWithoutLM
-    }
-}
-
 #[account]
 #[derive(Default, Debug)]
 pub struct Strategy {

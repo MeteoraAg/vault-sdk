@@ -1,3 +1,6 @@
+// every handler returns anchor's Result, whose Error is large
+#![allow(clippy::result_large_err)]
+
 pub mod context;
 pub mod seed;
 pub mod state;
@@ -71,8 +74,8 @@ pub mod vault {
     }
 
     #[allow(unused_variables)]
-    pub fn withdraw_directly_from_strategy<'a, 'b, 'c, 'info>(
-        ctx: Context<'a, 'b, 'c, 'info, WithdrawDirectlyFromStrategy<'info>>,
+    pub fn withdraw_directly_from_strategy<'info>(
+        ctx: Context<'_, '_, '_, 'info, WithdrawDirectlyFromStrategy<'info>>,
         unmint_amount: u64,
         min_out_amount: u64,
     ) -> Result<()> {
@@ -95,16 +98,16 @@ pub mod vault {
     }
 
     #[allow(unused_variables)]
-    pub fn deposit_strategy<'a, 'b, 'c, 'info>(
-        ctx: Context<'a, 'b, 'c, 'info, RebalanceStrategy<'info>>,
+    pub fn deposit_strategy<'info>(
+        ctx: Context<'_, '_, '_, 'info, RebalanceStrategy<'info>>,
         amount: u64,
     ) -> Result<()> {
         Ok(())
     }
 
     #[allow(unused_variables)]
-    pub fn withdraw_strategy<'a, 'b, 'c, 'info>(
-        ctx: Context<'a, 'b, 'c, 'info, RebalanceStrategy<'info>>,
+    pub fn withdraw_strategy<'info>(
+        ctx: Context<'_, '_, '_, 'info, RebalanceStrategy<'info>>,
         amount: u64,
     ) -> Result<()> {
         Ok(())

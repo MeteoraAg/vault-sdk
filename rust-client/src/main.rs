@@ -1,4 +1,3 @@
-mod user;
 mod utils;
 use anchor_client::solana_sdk::commitment_config::CommitmentConfig;
 use anchor_client::solana_sdk::pubkey::Pubkey;
@@ -12,11 +11,11 @@ use anyhow::Result;
 use bincode::deserialize;
 use clap::Parser;
 use mercurial_vault::get_base_key;
+use rust_client::user::*;
 use std::convert::TryFrom;
 use std::ops::Deref;
 use std::rc::Rc;
 use std::str::FromStr;
-use user::*;
 
 #[derive(Default, Debug, Parser)]
 pub struct ConfigOverride {

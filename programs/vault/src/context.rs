@@ -1,6 +1,5 @@
 use crate::get_base_address_for_idle_vault;
 use crate::get_base_key;
-use crate::get_treasury_address;
 use crate::seed;
 use crate::state::{Strategy, Vault, MAX_BUMPS};
 use anchor_lang::prelude::*;

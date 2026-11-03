@@ -13,8 +13,10 @@ use std::str::FromStr;
     Deserialize,
     Eq,
     Hash,
+    Default,
 )]
 pub enum StrategyType {
+    #[default]
     PortFinanceWithoutLM,
     PortFinanceWithLM,
     SolendWithoutLM,

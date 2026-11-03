@@ -10,7 +10,7 @@ use core::ops::Deref;
 pub fn parse_event_log<
     T: anchor_lang::AnchorDeserialize + anchor_lang::AnchorSerialize + anchor_lang::Discriminator,
 >(
-    logs: &Vec<String>,
+    logs: &[String],
 ) -> Option<T> {
     for log in logs.iter() {
         if log.starts_with("Program data:") {
@@ -19,8 +19,7 @@ pub fn parse_event_log<
             // https://github.com/project-serum/anchor/pull/1608/files
             let log_info: String = log.chars().skip(14).collect();
             let log_buf = anchor_lang::__private::base64::decode(log_info.as_bytes());
-            if log_buf.is_ok() {
-                let log_buf = log_buf.unwrap();
+            if let Ok(log_buf) = log_buf {
                 // Check for event discriminator, it is a 8-byte prefix
                 if log_buf[0..8] == T::discriminator() {
                     // Skip event discriminator when deserialize
