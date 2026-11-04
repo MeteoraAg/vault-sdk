@@ -101,10 +101,11 @@ pub fn get_or_create_ata<C: Deref<Target = impl Signer> + Clone>(
         println!("Create ATA for TOKEN {} \n", &token_mint);
 
         let builder = program_client.request().instruction(
-            spl_associated_token_account::create_associated_token_account(
+            spl_associated_token_account::instruction::create_associated_token_account(
                 &program_client.payer(),
                 &user,
                 &token_mint,
+                &spl_token::id(),
             ),
         );
 

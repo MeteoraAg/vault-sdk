@@ -18,32 +18,36 @@ env:
 jobs:
   changed_files_ts:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
-      program: ${{steps.changed-files-specific.outputs.any_changed}}
+      program: ${{steps.changed-files-specific.outputs.program}}
     steps:
-      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
       - name: Get specific changed files
         id: changed-files-specific
-        uses: tj-actions/changed-files@a2f1692a6f703b7a14e155ae404e6bb15538b763 # v18.6
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         with:
-          files: |
-            ts-client
+          filters: |
+            program:
+              - "ts-client/**"
 
   ts-test:
     needs: changed_files_ts
     runs-on: ubuntu-latest
     if: needs.changed_files_ts.outputs.program == 'true'
     steps:
-      - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Set up Node.js
         uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1.4.6
         with:
           node-version: ${{ matrix.node }}
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         with:
-          version: 12
+          package_json_file: ts-client/package.json
       - name: Install dependencies
         working-directory: ${{ env.working_dir }}
         run: pnpm install --frozen-lockfile

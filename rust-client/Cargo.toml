@@ -2,6 +2,7 @@
 name = "rust-client"
 version = "0.5.0"
 edition = "2018"
+publish = false
 
 [features]
 devnet = []
